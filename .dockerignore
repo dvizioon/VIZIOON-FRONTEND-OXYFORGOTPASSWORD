@@ -9,7 +9,7 @@ coverage
 .vscode
 .idea
 *.log
-dist
-build
+# dist
+# build
 .DS_Store
 Thumbs.db
