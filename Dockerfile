@@ -6,14 +6,14 @@ WORKDIR /frontend
 # Copiar package files
 COPY package*.json ./
 
-# Install dependencies normalmente
-RUN npm install
+# Install ALL dependencies (including devDependencies)
+RUN npm ci
 
 # Copiar código fonte
 COPY . .
 
 # Build da aplicação
-RUN npm run build
+RUN npx vite build
 
 # Stage 2: Nginx para porta 4000 (compatível com docker-compose)
 FROM nginx:alpine AS production
@@ -41,7 +41,7 @@ RUN echo 'server { \
 }' > /etc/nginx/conf.d/default.conf
 
 # Remover configuração padrão do nginx
-RUN rm /etc/nginx/conf.d/default.conf.default 2>/dev/null || true
+RUN rm -f /etc/nginx/conf.d/default.conf.default
 
 EXPOSE 4000
 
