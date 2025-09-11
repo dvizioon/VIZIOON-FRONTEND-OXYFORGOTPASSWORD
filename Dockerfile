@@ -1,4 +1,4 @@
-# Multi-stage build para otimizar o tamanho da imagem final
+# Multi-stage build para React + Vite + TypeScript
 
 # Stage 1: Build da aplicação
 FROM node:20.19.5-alpine AS builder
@@ -9,7 +9,7 @@ WORKDIR /frontend
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar todas as dependências
+# Instalar dependências (incluindo devDependencies para build)
 RUN npm ci
 
 # Copiar código fonte
@@ -21,14 +21,11 @@ RUN npm run build
 # Stage 2: Imagem de produção
 FROM node:20.19.5-alpine AS production
 
+# Instalar serve globalmente para servir arquivos estáticos
+RUN npm install -g serve
+
 # Definir diretório de trabalho
 WORKDIR /frontend
-
-# Copiar arquivos de dependências
-COPY package*.json ./
-
-# Instalar apenas dependências de produção + serve para servir arquivos estáticos
-RUN npm ci --only=production && npm install -g serve
 
 # Copiar arquivos buildados do stage anterior
 COPY --from=builder /frontend/dist ./dist
@@ -36,5 +33,5 @@ COPY --from=builder /frontend/dist ./dist
 # Expor porta
 EXPOSE 4000
 
-# Comando para servir os arquivos estáticos
+# Comando para servir os arquivos estáticos do SPA
 CMD ["serve", "-s", "dist", "-l", "4000"]
