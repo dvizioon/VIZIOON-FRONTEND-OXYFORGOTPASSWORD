@@ -24,9 +24,8 @@ RUN npx vite build
 # Stage 2: Imagem de produção
 FROM node:20.19.5-alpine AS production
 
-# Configurar registry alternativo com múltiplas opções de fallback
+# Configurar registry alternativo com configurações válidas
 RUN npm config set registry https://registry.npmmirror.com && \
-    npm config set timeout 60000 && \
     npm config set fetch-retries 5 && \
     npm config set fetch-retry-factor 2 && \
     npm config set fetch-retry-mintimeout 10000 && \
