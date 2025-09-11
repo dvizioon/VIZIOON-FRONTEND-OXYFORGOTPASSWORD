@@ -45,14 +45,6 @@ const AdminLogin: React.FC = () => {
           </div>
 
           <div className="p-6">
-            {alert && (
-              <Alert
-                type={alert.type}
-                message={alert.message}
-                className="mb-6"
-              />
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="relative">
                 <Input
