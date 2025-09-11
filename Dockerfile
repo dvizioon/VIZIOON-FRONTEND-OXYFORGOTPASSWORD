@@ -19,16 +19,13 @@ COPY . .
 RUN npx vite build
 
 # Stage 2: Imagem de produção
-FROM node:20.19.5 AS production
+FROM node:20.19.5-alpine AS production
+
+# Instalar serve globalmente
+RUN npm install -g serve
 
 # Definir diretório de trabalho
 WORKDIR /frontend
-
-# Copiar arquivos de dependências
-COPY package*.json ./
-
-# Instalar apenas dependências de produção
-RUN npm install --only=production
 
 # Copiar arquivos buildados do stage anterior
 COPY --from=builder /frontend/dist ./dist
@@ -36,5 +33,5 @@ COPY --from=builder /frontend/dist ./dist
 # Expor porta
 EXPOSE 4000
 
-# Comando para iniciar a aplicação
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4000"]
+# Comando para servir os arquivos estáticos
+CMD ["serve", "-s", "dist", "-l", "4000"]

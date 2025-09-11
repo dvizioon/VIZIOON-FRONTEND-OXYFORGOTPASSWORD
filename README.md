@@ -128,6 +128,33 @@ docker-compose down
 docker-compose logs -f oxypass-frontend
 ```
 
+### Solução de Problemas Docker
+
+#### Problema de DNS (EAI_AGAIN)
+
+Se você encontrar erros como `EAI_AGAIN` ou `getaddrinfo EAI_AGAIN registry.npmjs.org` durante o build do Docker, isso é um problema conhecido de DNS. Para resolver:
+
+1. Crie o arquivo `/etc/docker/daemon.json`:
+```json
+{
+    "dns": ["10.0.0.2", "8.8.8.8"]
+}
+```
+
+2. Onde `10.0.0.2` é o primeiro servidor DNS da sua máquina e `8.8.8.8` é o servidor DNS de fallback (Google).
+
+3. Reinicie o Docker:
+```bash
+sudo systemctl restart docker
+```
+
+4. Execute o build novamente:
+```bash
+docker build --no-cache -t oxypass-frontend .
+```
+
+**Referência**: [Fix Docker networking DNS](https://development.robinwinslow.uk/2016/06/23/fix-docker-networking-dns/)
+
 ## Responsividade
 
 Interface totalmente responsiva com breakpoints:
