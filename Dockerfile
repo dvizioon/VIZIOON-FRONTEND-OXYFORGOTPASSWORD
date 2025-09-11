@@ -1,22 +1,40 @@
-# Dockerfile simples - usa build local
-FROM node:20.19.5-alpine
+# Multi-stage build para otimizar o tamanho da imagem final
 
+# Stage 1: Build da aplicação
+FROM node:20.19.5 AS builder
+
+# Definir diretório de trabalho
 WORKDIR /frontend
 
-# Verificar se dist existe e copiar (ignorar .dockerignore se necessário)
-COPY ./dist ./dist
+# Copiar arquivos de dependências
+COPY package*.json ./
 
-# Install serve globalmente
-RUN npm install -g serve
+# Limpar cache e instalar todas as dependências (incluindo dev dependencies)
+RUN npm cache clean --force && npm ci
 
-# Criar usuário não-root
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S frontend -u 1001 && \
-    chown -R frontend:nodejs /frontend
+# Copiar código fonte
+COPY . .
 
-USER frontend
+# Build da aplicação usando npx diretamente
+RUN npx vite build
 
+# Stage 2: Imagem de produção
+FROM node:20.19.5 AS production
+
+# Definir diretório de trabalho
+WORKDIR /frontend
+
+# Copiar arquivos de dependências
+COPY package*.json ./
+
+# Instalar apenas dependências de produção
+RUN npm install --only=production
+
+# Copiar arquivos buildados do stage anterior
+COPY --from=builder /frontend/dist ./dist
+
+# Expor porta
 EXPOSE 4000
 
-# Servir arquivos na porta 4000
-CMD ["serve", "-s", "dist", "-l", "4000", "--cors"]
+# Comando para iniciar a aplicação
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4000"]
