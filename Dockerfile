@@ -24,11 +24,18 @@ RUN npx vite build
 # Stage 2: Imagem de produção
 FROM node:20.19.5-alpine AS production
 
-# Configurar registry alternativo também no stage de produção
-RUN npm config set registry https://registry.npmmirror.com
+# Configurar registry alternativo com múltiplas opções de fallback
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set timeout 60000 && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000
 
-# Instalar serve globalmente para servir arquivos estáticos
-RUN npm install -g serve
+# Tentar instalar serve com fallback para diferentes registries
+RUN npm install -g serve || \
+    (npm config set registry https://registry.yarnpkg.com && npm install -g serve) || \
+    (npm config set registry https://registry.npmjs.org && npm install -g serve)
 
 # Definir diretório de trabalho
 WORKDIR /frontend
