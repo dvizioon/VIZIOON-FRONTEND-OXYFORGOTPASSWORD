@@ -12,9 +12,6 @@ COPY package*.json ./
 # Instalar todas as dependências (incluindo dev dependencies)
 RUN npm install
 
-# Verificar se o Vite foi instalado corretamente
-RUN npx vite --version
-
 # Copiar código fonte
 COPY . .
 
