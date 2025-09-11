@@ -3,18 +3,14 @@
 # Stage 1: Build da aplicação
 FROM node:18-alpine AS builder
 
-# Instalar dependências necessárias para build
-RUN apk add --no-cache python3 make g++
-
 # Definir diretório de trabalho
 WORKDIR /frontend
 
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Limpar cache do npm e instalar todas as dependências
-RUN npm cache clean --force && \
-    npm ci --no-audit --no-fund
+# Instalar todas as dependências (incluindo dev dependencies)
+RUN npm install
 
 # Verificar se o Vite foi instalado corretamente
 RUN npx vite --version
@@ -35,8 +31,7 @@ WORKDIR /frontend
 COPY package*.json ./
 
 # Instalar apenas dependências de produção
-RUN npm ci --only=production --no-audit --no-fund && \
-    npm cache clean --force
+RUN npm install --only=production
 
 # Copiar arquivos buildados do stage anterior
 COPY --from=builder /frontend/dist ./dist
