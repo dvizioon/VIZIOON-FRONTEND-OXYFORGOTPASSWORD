@@ -12,14 +12,11 @@ COPY package*.json ./
 # Limpar cache e instalar todas as dependências (incluindo dev dependencies)
 RUN npm cache clean --force && npm ci
 
-# Verificar se o Vite foi instalado
-RUN ls -la node_modules/.bin/ | grep vite
-
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação
-RUN npm run build
+# Build da aplicação usando npx diretamente
+RUN npx vite build
 
 # Stage 2: Imagem de produção
 FROM node:20.19.5 AS production
