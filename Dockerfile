@@ -18,8 +18,8 @@ RUN npm install
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação usando npx
-RUN npx vite build
+# Build da aplicação usando o vite local
+RUN npm run build
 
 # Stage 2: Imagem de produção
 FROM node:20.19.5-alpine AS production
