@@ -3,8 +3,8 @@ FROM node:20.19.5-alpine
 
 WORKDIR /frontend
 
-# Copiar apenas a pasta dist (build já feito localmente)
-COPY dist ./dist
+# Verificar se dist existe e copiar (ignorar .dockerignore se necessário)
+COPY ./dist ./dist
 
 # Install serve globalmente
 RUN npm install -g serve
