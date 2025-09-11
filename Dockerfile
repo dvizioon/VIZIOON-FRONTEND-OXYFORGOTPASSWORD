@@ -1,7 +1,7 @@
 # Multi-stage build para otimizar o tamanho da imagem final
 
 # Stage 1: Build da aplicação
-FROM node:18-alpine AS builder
+FROM node:20.19.5 AS builder
 
 # Definir diretório de trabalho
 WORKDIR /frontend
@@ -9,8 +9,11 @@ WORKDIR /frontend
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar todas as dependências (incluindo dev dependencies)
-RUN npm install
+# Limpar cache e instalar todas as dependências (incluindo dev dependencies)
+RUN npm cache clean --force && npm ci
+
+# Verificar se o Vite foi instalado
+RUN ls -la node_modules/.bin/ | grep vite
 
 # Copiar código fonte
 COPY . .
@@ -19,7 +22,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Imagem de produção
-FROM node:18-alpine AS production
+FROM node:20.19.5 AS production
 
 # Definir diretório de trabalho
 WORKDIR /frontend
