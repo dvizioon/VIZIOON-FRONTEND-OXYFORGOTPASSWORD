@@ -12,7 +12,8 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host:'localhost',
-      port: env.VITE_PORT ? parseInt(env.VITE_PORT) : 4000, 
+      // port: env.VITE_PORT ? parseInt(env.VITE_PORT) : 4000, 
+      port: 4000, 
       // https:false
     },
   };
