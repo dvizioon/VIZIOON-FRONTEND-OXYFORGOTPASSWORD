@@ -6,6 +6,9 @@ FROM node:20.19.5-alpine AS builder
 # Definir diretório de trabalho
 WORKDIR /frontend
 
+# Configurar registry alternativo (devido ao ataque recente ao NPM)
+RUN npm config set registry https://registry.npmmirror.com
+
 # Copiar arquivos de dependências
 COPY package*.json ./
 
@@ -20,6 +23,9 @@ RUN npx vite build
 
 # Stage 2: Imagem de produção
 FROM node:20.19.5-alpine AS production
+
+# Configurar registry alternativo também no stage de produção
+RUN npm config set registry https://registry.npmmirror.com
 
 # Instalar serve globalmente para servir arquivos estáticos
 RUN npm install -g serve
