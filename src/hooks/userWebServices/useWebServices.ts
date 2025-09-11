@@ -1,0 +1,113 @@
+import { useState } from 'react';
+import { api } from '../../lib/api';
+import { CreateWebServiceData, UpdateWebServiceData } from '../../types';
+
+export const useWebServices = () => {
+  const [loading, setLoading] = useState(false);
+
+  const getWebServices = async (page: number = 1, limit: number = 10, search?: string) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+      
+      if (search) {
+        params.append('search', search);
+      }
+
+      const response = await api.get(`/api/webservice?${params}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getWebServiceById = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/webservice/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createWebService = async (webServiceData: CreateWebServiceData) => {
+    try {
+      setLoading(true);
+      const response = await api.post('/api/webservice', webServiceData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateWebService = async (id: string, webServiceData: UpdateWebServiceData) => {
+    try {
+      setLoading(true);
+      const response = await api.put(`/api/webservice/${id}`, webServiceData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteWebService = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await api.delete(`/api/webservice/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleWebServiceStatus = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await api.patch(`/api/webservice/${id}/toggle`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportWebServices = async (format: 'csv' | 'xlsx' = 'csv') => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/webservice/export?format=${format}`, {
+        responseType: 'blob',
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    getWebServices,
+    getWebServiceById,
+    createWebService,
+    updateWebService,
+    deleteWebService,
+    toggleWebServiceStatus,
+    exportWebServices,
+  };
+};
