@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, User, Mail, Server, Clock, CheckCircle, XCircle, AlertCircle, Copy } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { AuditLog } from '../../types';
+import { formatDate } from '../../lib/utils';
 import { copyToClipboard } from '../../lib/utils';
 
 interface AuditingViewModalProps {
@@ -234,7 +235,7 @@ export const AuditingViewModal: React.FC<AuditingViewModalProps> = ({
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Criado em</label>
                 <p className="text-sm text-gray-900 bg-white p-2 rounded border">
-                  {new Date(auditLog.created_at).toLocaleString('pt-BR', {
+                  {formatDate(auditLog.created_at, {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',

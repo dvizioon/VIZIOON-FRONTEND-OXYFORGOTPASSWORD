@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Globe, Server, Key, User, Shield, Calendar, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { WebService } from '../../types';
+import { formatDate } from '../../lib/utils';
 
 interface WebServiceViewModalProps {
   isOpen: boolean;
@@ -166,26 +167,14 @@ export const WebServiceViewModal: React.FC<WebServiceViewModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-1">Criado em</label>
                   <p className="text-sm text-gray-900 bg-white p-3 rounded border flex items-center">
                     <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                    {new Date(webService.createdAt).toLocaleString('pt-BR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {formatDate(webService.createdAt)}
                   </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Última Atualização</label>
                   <p className="text-sm text-gray-900 bg-white p-3 rounded border flex items-center">
                     <Clock className="w-4 h-4 mr-2 text-gray-400" />
-                    {new Date(webService.updatedAt).toLocaleString('pt-BR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {formatDate(webService.updatedAt)}
                   </p>
                 </div>
               </div>

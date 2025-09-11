@@ -2,6 +2,7 @@ import React from 'react';
 import { X, User, Mail, Shield, Calendar, Clock } from 'lucide-react';
 import { Button } from '../UI/Button';
 import { User as UserType } from '../../types';
+import { formatDate } from '../../lib/utils';
 
 interface UserViewModalProps {
   isOpen: boolean;
@@ -127,26 +128,14 @@ export const UserViewModal: React.FC<UserViewModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-1">Criado em</label>
                   <p className="text-sm text-gray-900 bg-white p-3 rounded border flex items-center">
                     <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                    {new Date(user.createdAt).toLocaleString('pt-BR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {formatDate(user.createdAt)}
                   </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Última Atualização</label>
                   <p className="text-sm text-gray-900 bg-white p-3 rounded border flex items-center">
                     <Clock className="w-4 h-4 mr-2 text-gray-400" />
-                    {new Date(user.updatedAt).toLocaleString('pt-BR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {formatDate(user.updatedAt)}
                   </p>
                 </div>
               </div>
