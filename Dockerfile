@@ -9,14 +9,14 @@ WORKDIR /frontend
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar dependências (incluindo devDependencies para build)
-RUN npm ci
+# Instalar TODAS as dependências (incluindo devDependencies)
+RUN npm install
 
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação
-RUN npm run build
+# Build da aplicação usando npx
+RUN npx vite build
 
 # Stage 2: Imagem de produção
 FROM node:20.19.5-alpine AS production
@@ -34,4 +34,4 @@ COPY --from=builder /frontend/dist ./dist
 EXPOSE 4000
 
 # Comando para servir os arquivos estáticos do SPA
-CMD ["serve", "-s", "dist", "-l", "4000"]
+CMD ["serve", "-s", "dist", "-l", "4000", "--cors"]
