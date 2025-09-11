@@ -7,6 +7,7 @@ import { useToastAlert } from '../../components/UI/ToastAlert';
 import { Button } from '../../components/UI/Button';
 import { DatePicker } from '../../components/UI/DatePicker';
 import { useWebServices, useUsers, useAuditing, useSystem } from '../../hooks';
+import { formatDate } from '../../lib/utils';
 
 const formatDateBR = (isoDate: string) => {
   if (!isoDate) return '';
@@ -388,7 +389,11 @@ const AdminDashboard: React.FC = () => {
                         log.status === 'success' ? 'text-green-600' : 
                         log.status === 'error' ? 'text-red-600' : 'text-yellow-600'
                       }`}>
-                        {new Date(log.created_at).toLocaleDateString('pt-BR')}
+                        {formatDate(log.created_at, {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })}
                       </span>
                       <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
                     </div>
@@ -523,7 +528,11 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div className="flex flex-col items-end flex-shrink-0 ml-2">
                       <span className="text-xs font-medium text-red-600">
-                        {new Date(log.created_at).toLocaleDateString('pt-BR')}
+                        {formatDate(log.created_at, {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })}
                       </span>
                       <span className="text-xs text-red-500">
                         {new Date(log.created_at).toLocaleTimeString('pt-BR', { 

@@ -12,7 +12,7 @@ import { AuditingViewModal } from '../../components/modals/AuditingViewModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
 import { useAuditing, useMoodle } from '../../hooks';
 import { AuditLog } from '../../types';
-import { truncateText } from '../../lib/utils';
+import { truncateText, formatDate } from '../../lib/utils';
 
 const AdminAuditing: React.FC = () => {
   const { getAuditLogs, exportAuditLogs, deleteAuditLog } = useAuditing();
@@ -376,7 +376,7 @@ const AdminAuditing: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(log.created_at).toLocaleString('pt-BR')}
+                      {formatDate(log.created_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">

@@ -186,14 +186,14 @@ export const TemplateViewModal: React.FC<TemplateViewModalProps> = ({
                   <label className="block text-sm font-medium text-gray-700 mb-1">Criado em</label>
                   <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center">
                     <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                    <p className="text-base text-gray-900">{formatDate(template.createdAt)}</p>
+                    <p className="text-base text-gray-900">{formatDate(template.created_at)}</p>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Última Atualização</label>
                   <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex items-center">
                     <Clock className="w-4 h-4 mr-2 text-gray-400" />
-                    <p className="text-base text-gray-900">{formatDate(template.updatedAt)}</p>
+                    <p className="text-base text-gray-900">{formatDate(template.updated_at)}</p>
                   </div>
                 </div>
               </div>

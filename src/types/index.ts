@@ -91,8 +91,8 @@ export interface Template {
   type: 'html' | 'text';
   isActive: boolean;
   isDefault?: boolean;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CreateTemplateData {
