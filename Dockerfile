@@ -1,48 +1,23 @@
-# Multi-stage build simples
-FROM node:20.19.5-alpine AS builder
+# Dockerfile assumindo que você já fez npm run build local
+FROM node:20.19.5-alpine
 
 WORKDIR /frontend
 
-# Copiar package files
-COPY package*.json ./
+# Copiar apenas o que é necessário
+COPY dist ./dist
+COPY package.json ./
 
-# Install ALL dependencies (including devDependencies)
-RUN npm ci
+# Install apenas serve
+RUN npm install -g serve
 
-# Copiar código fonte
-COPY . .
+# Criar usuário não-root
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S frontend -u 1001 && \
+    chown -R frontend:nodejs /frontend
 
-# Build da aplicação
-RUN npx vite build
-
-# Stage 2: Nginx para porta 4000 (compatível com docker-compose)
-FROM nginx:alpine AS production
-
-# Copiar arquivos buildados
-COPY --from=builder /frontend/dist /usr/share/nginx/html
-
-# Configurar nginx para porta 4000
-RUN echo 'server { \
-    listen 4000; \
-    server_name localhost; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    \
-    location / { \
-        try_files $uri $uri/ /index.html; \
-    } \
-    \
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ { \
-        expires 1y; \
-        add_header Cache-Control "public, immutable"; \
-    } \
-    \
-    add_header Access-Control-Allow-Origin "*" always; \
-}' > /etc/nginx/conf.d/default.conf
-
-# Remover configuração padrão do nginx
-RUN rm -f /etc/nginx/conf.d/default.conf.default
+USER frontend
 
 EXPOSE 4000
 
-CMD ["nginx", "-g", "daemon off;"]
+# Serve os arquivos buildados
+CMD ["serve", "-s", "dist", "-l", "4000", "--cors"]
