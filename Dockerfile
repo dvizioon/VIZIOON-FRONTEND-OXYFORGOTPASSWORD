@@ -1,13 +1,12 @@
-# Dockerfile assumindo que você já fez npm run build local
+# Dockerfile simples - usa build local
 FROM node:20.19.5-alpine
 
 WORKDIR /frontend
 
-# Copiar apenas o que é necessário
+# Copiar apenas a pasta dist (build já feito localmente)
 COPY dist ./dist
-COPY package.json ./
 
-# Install apenas serve
+# Install serve globalmente
 RUN npm install -g serve
 
 # Criar usuário não-root
@@ -19,5 +18,5 @@ USER frontend
 
 EXPOSE 4000
 
-# Serve os arquivos buildados
+# Servir arquivos na porta 4000
 CMD ["serve", "-s", "dist", "-l", "4000", "--cors"]
