@@ -1,7 +1,8 @@
 # Multi-stage build para otimizar o tamanho da imagem final
 
 # Stage 1: Build da aplicação
-FROM node:20.19.5 AS builder
+# Usar Node.js Alpine para menor tamanho
+FROM node:18-alpine AS builder
 
 # Definir diretório de trabalho
 WORKDIR /frontend
