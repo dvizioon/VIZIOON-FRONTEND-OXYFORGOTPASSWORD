@@ -11,7 +11,8 @@ WORKDIR /frontend
 COPY package*.json ./
 
 # Limpar cache e instalar todas as dependências (incluindo dev dependencies)
-RUN npm cache clean --force && npm ci
+# Usar npm install se package-lock.json não existir, senão usar npm ci
+RUN npm cache clean --force && if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Copiar código fonte
 COPY . .
@@ -29,7 +30,8 @@ WORKDIR /frontend
 COPY package*.json ./
 
 # Instalar apenas dependências de produção
-RUN npm ci --omit=dev && npm cache clean --force
+# Usar npm install se package-lock.json não existir, senão usar npm ci
+RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi && npm cache clean --force
 
 # Copiar arquivos buildados do stage anterior (frontend + servidor)
 COPY --from=builder /frontend/dist ./dist
