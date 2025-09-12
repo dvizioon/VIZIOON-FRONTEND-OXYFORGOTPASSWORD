@@ -29,7 +29,7 @@ WORKDIR /frontend
 COPY package*.json ./
 
 # Instalar apenas dependências de produção
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Copiar arquivos buildados do stage anterior (frontend + servidor)
 COPY --from=builder /frontend/dist ./dist
