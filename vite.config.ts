@@ -11,9 +11,8 @@ export default defineConfig(({ mode }) => {
       exclude: ['lucide-react'],
     },
     server: {
-      host:'localhost',
-      // port: env.VITE_PORT ? parseInt(env.VITE_PORT) : 4000, 
-      port: 4000, 
+      host: env.VITE_HOST ? `${env.VITE_HOST}` :  `localhost`,
+      port: env.VITE_PORT ? parseInt(env.VITE_PORT) : 4000, 
       // https:false
     },
   };
