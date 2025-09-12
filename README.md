@@ -39,7 +39,7 @@ cp .env.example .env
 npm run dev
 ```
 
-A aplicação estará disponível em http://localhost:4000
+A aplicação estará disponível em http://localhost:4000 (desenvolvimento) ou http://localhost:3000 (produção com servidor Express)
 
 ### Instalação com Docker
 
@@ -55,7 +55,10 @@ docker-compose --profile dev up -d
 
 ```bash
 npm run dev          # Servidor de desenvolvimento
-npm run build        # Build de produção
+npm run build        # Build do frontend (Vite)
+npm run build:server # Compila o servidor Express
+npm run build:all    # Build completo (frontend + servidor)
+npm run start        # Executa o servidor Express
 npm run preview      # Preview do build
 npm run lint         # Executar ESLint
 ```
@@ -64,12 +67,14 @@ npm run lint         # Executar ESLint
 
 - Frontend: React 18.3.1 + TypeScript 5.5.3
 - Build Tool: Vite 5.4.2
+- Servidor: Express.js + Node.js
 - Styling: Tailwind CSS 3.4.1
 - Roteamento: React Router DOM 7.8.2
 - HTTP Client: Axios 1.11.0
 - Notificações: React Toastify 11.0.5
 - Ícones: Lucide React 0.344.0
 - Editor: CodeMirror (para templates)
+- Variáveis de Ambiente: dotenv
 
 ## Estrutura do Projeto
 
@@ -85,6 +90,7 @@ src/
 ├── pages/              # Páginas da aplicação
 ├── routes/             # Configuração de rotas
 ├── types/              # Definições TypeScript
+├── server.ts           # Servidor Express
 └── main.tsx           # Ponto de entrada
 ```
 
@@ -95,9 +101,14 @@ src/
 Crie um arquivo .env na raiz do projeto:
 
 ```env
-VITE_BACKEND_URL=http://localhost:3000
-VITE_PORT=4000
-NODE_ENV=development
+# Porta do servidor Express
+PORT=3000
+
+# URL do backend (para o frontend)
+VITE_BACKEND_URL=http://localhost:8000
+
+# Ambiente
+NODE_ENV=production
 ```
 
 ### API Integration

@@ -16,23 +16,26 @@ RUN npm cache clean --force && npm ci
 # Copiar código fonte
 COPY . .
 
-# Build da aplicação usando npx diretamente
-RUN npx vite build
+# Build da aplicação e do servidor
+RUN npm run build:all
 
 # Stage 2: Imagem de produção
 FROM node:20.19.5-alpine AS production
 
-# Instalar serve globalmente
-RUN npm install -g serve
-
 # Definir diretório de trabalho
 WORKDIR /frontend
 
-# Copiar arquivos buildados do stage anterior
+# Copiar package.json e package-lock.json para instalar apenas dependências de produção
+COPY package*.json ./
+
+# Instalar apenas dependências de produção
+RUN npm ci --only=production && npm cache clean --force
+
+# Copiar arquivos buildados do stage anterior (frontend + servidor)
 COPY --from=builder /frontend/dist ./dist
 
 # Expor porta
-EXPOSE 4000
+EXPOSE 3000
 
-# Comando para servir os arquivos estáticos
-CMD ["serve", "-s", "dist", "-l", "4000"]
+# Comando para executar nosso servidor Express
+CMD ["node", "dist/server.js"]
