@@ -17,7 +17,7 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`📁 Servindo arquivos da pasta: ${path.join(__dirname, '../dist')}`);
-  console.log(`🌐 Acesse: http://localhost:${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servindo arquivos da pasta: ${path.join(__dirname, '../dist')}`);
+  console.log(`Acesse: http://localhost:${PORT}`);
 });
