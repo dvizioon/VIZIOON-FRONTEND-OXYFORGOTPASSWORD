@@ -475,14 +475,16 @@ const AdminTemplates: React.FC = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleDeleteTemplate(template)}
-                          title="Excluir template"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
+                        {!template.isDefault && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteTemplate(template)}
+                            title="Excluir template"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

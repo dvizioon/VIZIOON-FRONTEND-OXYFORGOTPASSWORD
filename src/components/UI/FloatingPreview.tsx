@@ -15,7 +15,7 @@ export const FloatingPreview: React.FC<FloatingPreviewProps> = ({
   onClose,
   content,
   title = "Preview HTML",
-  initialPosition = { x: window.innerWidth / 2 - 200, y: window.innerHeight / 2 - 150 },
+  initialPosition = { x: 50, y: 50 },
   initialSize = { width: 400, height: 300 }
 }) => {
   const [isDragging, setIsDragging] = useState(false);
