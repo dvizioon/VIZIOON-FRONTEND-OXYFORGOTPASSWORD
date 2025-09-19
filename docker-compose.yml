@@ -1,7 +1,7 @@
 services:
   oxypass-frontend:
     build: .
-    container_name: oxypass-frontend
+    container_name: oxyrecover-frontend
     ports:
       - "4567:${PORT:-3000}"
     environment:
@@ -14,7 +14,7 @@ services:
       - .env
     restart: unless-stopped
     networks:
-      - oxypass-network
+      - oxyrecover-network
 
 networks:
   oxypass-network:
