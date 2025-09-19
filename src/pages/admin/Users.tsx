@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
-// import { AdminLayout } from '../../components/Layout/AdminLayout';
+import { Search, ChevronLeft, ChevronRight, Eye, Users } from 'lucide-react';
+import { AdminLayout } from '../../components/Layout/AdminLayout';
 import { Button } from '../../components/UI/Button';
 import { Input } from '../../components/UI/Input';
 import { SearchableSelect } from '../../components/UI/SearchableSelect';
@@ -12,12 +12,14 @@ import { ExportModal } from '../../components/modals/ExportModal';
 import { UserViewModal } from '../../components/modals/UserViewModal';
 import { useUsers } from '../../hooks';
 import { useAuthContext } from '../../contexts/Auth/AuthContext';
+import { useI18n } from '../../hooks/useI18n';
 import { User } from '../../types';
 
 const AdminUsers: React.FC = () => {
   const { user: currentUser } = useAuthContext();
   const { getUsers, exportUsers } = useUsers();
   const { showError, showSuccess } = useToastAlert();
+  const { t } = useI18n();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -156,12 +158,20 @@ const AdminUsers: React.FC = () => {
   }
 
   return (
-    <div>
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Usuários</h1>
-            <p className="text-gray-600">Visualize as informações dos usuários do sistema</p>
+    <AdminLayout title="Usuários">
+      <div className="w-full h-full">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{t('users')}</h1>
+                <p className="text-gray-600">Visualize as informações dos usuários do sistema</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -432,7 +442,7 @@ const AdminUsers: React.FC = () => {
           type="danger"
         /> */}
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

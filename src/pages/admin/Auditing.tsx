@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Eye, ChevronLeft, ChevronRight, FileSpreadsheet, Trash2, User } from 'lucide-react';
+import { Search, Eye, ChevronLeft, ChevronRight, FileSpreadsheet, Trash2, User, Shield } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-// import { AdminLayout } from '../../components/Layout/AdminLayout';
+import { AdminLayout } from '../../components/Layout/AdminLayout';
 import { Button } from '../../components/UI/Button';
 import { Input } from '../../components/UI/Input';
 import { SearchableSelect } from '../../components/UI/SearchableSelect';
@@ -11,6 +11,7 @@ import { ExportModal } from '../../components/modals/ExportModal';
 import { AuditingViewModal } from '../../components/modals/AuditingViewModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
 import { useAuditing, useMoodle } from '../../hooks';
+import { useI18n } from '../../hooks/useI18n';
 import { AuditLog } from '../../types';
 import { truncateText, formatDate } from '../../lib/utils';
 
@@ -18,6 +19,7 @@ const AdminAuditing: React.FC = () => {
   const { getAuditLogs, exportAuditLogs, deleteAuditLog } = useAuditing();
   const { findMoodleUser } = useMoodle();
   const { showError, showSuccess } = useToastAlert();
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -241,25 +243,33 @@ const AdminAuditing: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Auditoria</h1>
-            <p className="text-gray-600">Logs de atividades do sistema</p>
+    <AdminLayout title="Auditoria">
+      <div className="w-full h-full">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Shield className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{t('auditing')}</h1>
+                <p className="text-gray-600">Logs de atividades do sistema</p>
+              </div>
+            </div>
+            <Button 
+              variant="outline"
+              onClick={() => setExportModal(true)}
+              disabled={filteredLogs.length === 0}
+            >
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              Exportar
+            </Button>
           </div>
-          <Button 
-            variant="outline"
-            onClick={() => setExportModal(true)}
-            disabled={filteredLogs.length === 0}
-          >
-            <FileSpreadsheet className="w-4 h-4 mr-2" />
-            Exportar
-          </Button>
         </div>
 
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
               <div className="flex-1 relative">
@@ -535,6 +545,7 @@ const AdminAuditing: React.FC = () => {
               </div>
             </div>
           )}
+          </div>
         </div>
 
         {/* Export Modal */}
@@ -646,7 +657,7 @@ const AdminAuditing: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

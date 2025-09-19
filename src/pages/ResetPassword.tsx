@@ -1,281 +1,143 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Mail, User, ArrowRight } from 'lucide-react';
-import { LoadingSpinner } from '../components/UI/LoadingSpinner';
+import React, { useState } from 'react';
+import { Mail, ArrowLeft } from 'lucide-react';
 import { Button } from '../components/UI/Button';
 import { Input } from '../components/UI/Input';
-import { SearchableSelect } from '../components/UI/SearchableSelect';
 import { useToastAlert } from '../components/UI/ToastAlert';
-import { useMoodle } from '../hooks';
+import { ParticlesBackground } from '../components/UI/ParticlesBackground';
+import { useI18n } from '../hooks/useI18n';
+import { LanguageSelector } from '../components/UI/LanguageSelector';
+import api from '../lib/api';
 
 const ResetPassword: React.FC = () => {
-  const { requestPasswordReset, getMoodleUsers } = useMoodle();
-  const { showError, showSuccess } = useToastAlert();
-  const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'email' | 'username'>('email');
-  const [showSelect, setShowSelect] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    username: '',
-    moodleUrl: ''
-  });
-  const [availableUrls, setAvailableUrls] = useState<{ value: string; label: string }[]>([]);
+  const { t } = useI18n();
+  const { showSuccess, showError } = useToastAlert();
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingUrls, setLoadingUrls] = useState(false);
-
-  const moodleApp = searchParams.get('moodleApp');
-
-  useEffect(() => {
-    if (moodleApp) {
-      setFormData(prev => ({ ...prev, moodleUrl: moodleApp }));
-    } else {
-      loadAvailableUrls();
-    }
-  }, [moodleApp]);
-
-  const loadAvailableUrls = async () => {
-    setLoadingUrls(true);
-    try {
-      const response = await getMoodleUsers('simples');
-      if (response.success && response.urls) {
-        const urls = response.urls.map((item: { url: string }) => ({
-          value: item.url,
-          label: item.url
-        }));
-        setAvailableUrls(urls);
-      }
-    } catch (error) {
-      showError('Erro ao carregar ambientes disponíveis');
-    } finally {
-      setLoadingUrls(false);
-    }
-  };
-
-  const handleEnvironmentSelect = (url: string) => {
-    setFormData(prev => ({ ...prev, moodleUrl: url }));
-    const urlObj = new URL(window.location.href);
-    urlObj.searchParams.set('moodleApp', url);
-    window.history.replaceState({}, '', urlObj.toString());
-    window.location.reload();
-  };
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const requestData = {
-        moodleUrl: formData.moodleUrl,
-        ...(activeTab === 'email' ? { email: formData.email } : { username: formData.username })
-      };
+      const response = await api.post('/v1/moodle/reset-password', {
+        email: email
+      });
 
-      const response = await requestPasswordReset(requestData);
-      
-      if (response.success) {
-        showSuccess(response.message || 'Se o usuário existir, um email de reset de senha será enviado');
-        
-        // Reset form
-        setFormData({
-          email: '',
-          username: '',
-          moodleUrl: moodleApp || ''
-        });
+      if (response.data.success) {
+        setEmailSent(true);
+        showSuccess(t('resetEmailSent'));
+      } else {
+        throw new Error(response.data.message || 'Erro ao enviar e-mail');
       }
     } catch (error: any) {
-      showError(error.message || 'Erro ao processar solicitação');
+      showError(error.response?.data?.message || error.message || 'Erro ao enviar e-mail de redefinição');
     } finally {
       setLoading(false);
     }
   };
 
+  if (emailSent) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-8 h-8 text-green-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('resetEmailSent')}</h1>
+            <p className="text-gray-600 mb-6">{t('checkYourEmail')}</p>
+            <Button
+              onClick={() => window.location.href = '/admin/login'}
+              className="w-full"
+            >
+              Voltar ao Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
-      <div className="flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Left Side - Image/Illustration */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 to-purple-700 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/20 z-10">
+          <ParticlesBackground />
+        </div>
+        <div className="relative z-20 flex flex-col justify-center items-center text-white p-12 w-full h-full">
+          {/* Language Selector */}
+          <div className="absolute top-6 right-6 z-30">
+            <LanguageSelector />
+          </div>
+          
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
+              <Mail className="w-12 h-12 text-white" />
+            </div>
+            <h2 className="text-4xl font-bold mb-4">{t('resetPasswordTitle')}</h2>
+            <p className="text-xl text-white/90 mb-8">
+              {t('resetPasswordDescription')}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Reset Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-xl border border-violet-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-8 text-center rounded-t-2xl">
-              <h1 className="text-2xl font-bold text-white mb-2">OXYGENI</h1>
-              {moodleApp ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-center">
-                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      {moodleApp}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = new URL(window.location.href);
-                      url.searchParams.delete('moodleApp');
-                      window.history.replaceState({}, '', url.toString());
-                      window.location.reload();
-                    }}
-                    className="text-violet-100 hover:text-white text-sm underline transition-colors"
-                  >
-                    Trocar ambiente
-                  </button>
-                </div>
-              ) : (
-                <p className="text-violet-100">Sistema de Reset de Senhas</p>
-              )}
+          {/* Mobile Header */}
+          <div className="lg:hidden text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">OxyForgotPassword</h1>
+            <p className="text-gray-600">{t('resetPasswordDescription')}</p>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden lg:block mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('resetPasswordTitle')}</h1>
+            <p className="text-gray-600">{t('resetPasswordDescription')}</p>
+          </div>
+
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  type="email"
+                  label={t('email')}
+                  placeholder="seu-email@ceuma.br"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                <Mail className="absolute right-3 top-8 w-4 h-4 text-gray-400" />
+              </div>
             </div>
 
-            <div className="p-6">
+            <Button
+              type="submit"
+              loading={loading}
+              className="w-full"
+              size="lg"
+            >
+              <span>{t('sendResetEmail')}</span>
+            </Button>
+          </form>
 
-              {!moodleApp && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-                    Escolha seu Ambiente de Estudo
-                  </h3>
-                  
-                  {loadingUrls ? (
-                    <div className="flex items-center justify-center py-8">
-                      <LoadingSpinner size="md" />
-                      <span className="ml-2 text-gray-600">Carregando ambientes...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-1 gap-3 mb-4">
-                        {availableUrls.slice(0, 6).map((env) => (
-                          <button
-                            key={env.value}
-                            onClick={() => handleEnvironmentSelect(env.value)}
-                            className="p-4 border-2 border-gray-200 rounded-lg hover:border-violet-300 hover:bg-violet-50 transition-all duration-200 text-left group hover:animate__animated hover:animate__pulse hover:animate__faster"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="font-medium text-gray-900 group-hover:text-violet-700">
-                                  {env.label}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  Clique para acessar
-                                </p>
-                              </div>
-                              <div className="w-8 h-8 bg-violet-100 rounded-full flex items-center justify-center group-hover:bg-violet-200 group-hover:animate__animated group-hover:animate__bounceIn group-hover:animate__faster">
-                                <ArrowRight className="w-4 h-4 text-violet-600" />
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                      
-                      {availableUrls.length > 6 && (
-                        <div className="text-center">
-                          <button
-                            type="button"
-                            onClick={() => setShowSelect(!showSelect)}
-                            className="text-violet-600 hover:text-violet-700 text-sm font-medium underline"
-                          >
-                            {showSelect ? 'Ocultar outros ambientes' : `Ver mais ${availableUrls.length - 6} ambientes`}
-                          </button>
-                        </div>
-                      )}
-                      
-                      {showSelect && (
-                        <div className="mt-4">
-                          <SearchableSelect
-                            label="Ou selecione manualmente"
-                            placeholder="Buscar ambiente..."
-                            value={formData.moodleUrl}
-                            onChange={(value) => {
-                              if (value) {
-                                handleEnvironmentSelect(value);
-                              }
-                            }}
-                            options={[{ value: '', label: 'Selecione o ambiente' }, ...availableUrls]}
-                            loading={false}
-                          />
-                        </div>
-                      )}
-                      
-                      <div className="mt-6 pt-4 border-t border-gray-200 relative">
-                        <SearchableSelect
-                          label="Ou busque diretamente pelo ambiente"
-                          placeholder="Digite para buscar ambiente..."
-                          value={formData.moodleUrl}
-                          onChange={(value) => {
-                            if (value) {
-                              handleEnvironmentSelect(value);
-                            }
-                          }}
-                          options={[{ value: '', label: 'Selecione o ambiente' }, ...availableUrls]}
-                          loading={false}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {moodleApp && (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex bg-gray-100 rounded-lg p-1">
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('email')}
-                        className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                          activeTab === 'email'
-                            ? 'bg-white text-violet-700 shadow-sm'
-                            : 'text-gray-600 hover:text-violet-600'
-                        }`}
-                      >
-                        <Mail className="w-4 h-4" />
-                        <span>Email</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('username')}
-                        className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                          activeTab === 'username'
-                            ? 'bg-white text-violet-700 shadow-sm'
-                            : 'text-gray-600 hover:text-violet-600'
-                        }`}
-                      >
-                        <User className="w-4 h-4" />
-                        <span>Usuário</span>
-                      </button>
-                    </div>
-
-                    {activeTab === 'email' ? (
-                      <Input
-                        type="email"
-                        label="Email"
-                        placeholder="daniel@exemplo.com"
-                        value={formData.email}
-                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        required
-                      />
-                    ) : (
-                      <Input
-                        type="text"
-                        label="Nome de Usuário"
-                        placeholder="ex: CPF ( 2244400011 )"
-                        value={formData.username}
-                        onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                        required
-                      />
-                    )}
-                  </div>
-
-                  <Button
-                    type="submit"
-                    loading={loading}
-                    disabled={loadingUrls}
-                    className="w-full"
-                    size="lg"
-                  >
-                    <span>Enviar Link de Reset</span>
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </form>
-              )}
-            </div>
+          <div className="mt-8 text-center">
+            <a 
+              href="/admin/login" 
+              className="inline-flex items-center text-sm text-violet-600 hover:text-violet-700 font-medium"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar ao Login
+            </a>
           </div>
 
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              © 2025 OXYGENI - CEUMA. Todos os direitos reservados.
+              {t('copyright')}
             </p>
           </div>
         </div>

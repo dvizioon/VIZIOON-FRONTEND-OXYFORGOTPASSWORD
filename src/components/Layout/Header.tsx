@@ -2,6 +2,9 @@ import React from 'react';
 import { LogOut, User, Menu } from 'lucide-react';
 import { useAuthContext } from '../../contexts/Auth/AuthContext';
 import { Button } from '../UI/Button';
+import { LanguageOnlySelector } from '../UI/LanguageOnlySelector';
+import UserDropdown from '../UI/UserDropdown';
+import { useI18n } from '../../hooks/useI18n';
 
 interface HeaderProps {
   title?: string;
@@ -17,6 +20,8 @@ export const Header: React.FC<HeaderProps> = ({
   showMenuButton = false 
 }) => {
   const { user, logout } = useAuthContext();
+  const { t } = useI18n();
+  
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
@@ -35,23 +40,15 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
         
-        {showAuth && user && (
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <User className="w-4 h-4 text-gray-500" />
-              <span className="text-sm text-gray-700">{user.name}</span>
+        <div className="flex items-center space-x-4">
+          <LanguageOnlySelector />
+          
+          {showAuth && (
+            <div className="flex items-center space-x-4">
+              <UserDropdown />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={logout}
-              className="text-gray-600 hover:text-red-600"
-            >
-              <LogOut className="w-4 h-4 mr-1" />
-              Sair
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

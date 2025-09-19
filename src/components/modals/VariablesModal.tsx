@@ -15,17 +15,18 @@ interface VariablesModalProps {
   isOpen: boolean;
   onClose: () => void;
   variables: Variable[];
-  onInsertVariable: (usage: string) => void;
 }
 
 export const VariablesModal: React.FC<VariablesModalProps> = ({
   isOpen,
   onClose,
-  variables,
-  onInsertVariable
+  variables
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedVariable, setCopiedVariable] = useState<string | null>(null);
+
+  // Debug: verificar se as variáveis estão chegando
+  console.log('VariablesModal - variables:', variables);
 
   const filteredVariables = variables.filter(variable =>
     variable.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -51,10 +52,6 @@ export const VariablesModal: React.FC<VariablesModalProps> = ({
     }
   };
 
-  const handleInsert = (usage: string) => {
-    onInsertVariable(usage);
-    onClose();
-  };
 
   if (!isOpen) return null;
 
@@ -160,28 +157,17 @@ export const VariablesModal: React.FC<VariablesModalProps> = ({
                         <code className="text-sm font-mono text-violet-600 bg-violet-100 px-2 py-1 rounded">
                           {variable.usage}
                         </code>
-                        <div className="flex space-x-1 ml-2">
-                          <button
-                            onClick={() => copyVariable(variable.usage)}
-                            className="p-1 text-gray-500 hover:text-violet-600 transition-colors"
-                            title="Copiar variável"
-                          >
-                            {copiedVariable === variable.usage ? (
-                              <Check className="w-4 h-4 text-green-500" />
-                            ) : (
-                              <Copy className="w-4 h-4" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleInsert(variable.usage)}
-                            className="p-1 text-gray-500 hover:text-violet-600 transition-colors"
-                            title="Inserir no template"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => copyVariable(variable.usage)}
+                          className="p-1 text-gray-500 hover:text-violet-600 transition-colors"
+                          title="Copiar variável"
+                        >
+                          {copiedVariable === variable.usage ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </button>
                       </div>
                       
                       <p className="text-sm text-gray-700 mb-1 font-medium">{variable.description}</p>

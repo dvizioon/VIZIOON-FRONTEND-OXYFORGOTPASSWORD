@@ -28,6 +28,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { isAuth, user, loading, handleLogin, handleLogout, getCurrentUserInfo } = useAuth();
 
+
   const login = async (email: string, password: string, rememberMe: boolean = false) => {
     await handleLogin({ email, password, rememberMe });
   };

@@ -1,20 +1,21 @@
-import React, { Suspense } from "react";
-import { BrowserRouter, Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import { AuthProvider } from "../contexts/Auth/AuthContext";
-import { AdminLayout } from "../components/Layout/AdminLayout";
-import { LoadingSpinner } from "../components/UI/LoadingSpinner";
-import ProtectedRoute from "./Route";
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route as ReactRoute, Navigate } from 'react-router-dom';
+import { AuthProvider } from '../contexts/Auth/AuthContext';
+import { Route } from './Route';
+import { LoadingSpinner } from '../components/UI/LoadingSpinner';
 
 // Lazy load pages para performance
-const Login = React.lazy(() => import("../pages/admin/Login"));
-const Dashboard = React.lazy(() => import("../pages/admin/Dashboard"));
-const Users = React.lazy(() => import("../pages/admin/Users"));
-const WebServices = React.lazy(() => import("../pages/admin/WebServices"));
-const Templates = React.lazy(() => import("../pages/admin/Templates"));
-const Auditing = React.lazy(() => import("../pages/admin/Auditing"));
-const ResetPassword = React.lazy(() => import("../pages/ResetPassword"));
-const ResetPasswordForm = React.lazy(() => import("../pages/ResetPasswordForm"));
+const AdminLogin = React.lazy(() => import('../pages/admin/Login'));
+const AdminDashboard = React.lazy(() => import('../pages/admin/Dashboard'));
+const AdminUsers = React.lazy(() => import('../pages/admin/Users'));
+const AdminAuditing = React.lazy(() => import('../pages/admin/Auditing'));
+const AdminTemplates = React.lazy(() => import('../pages/admin/Templates'));
+const AdminWebServices = React.lazy(() => import('../pages/admin/WebServices'));
+const AdminEmailEnvironments = React.lazy(() => import('../pages/admin/EmailEnvironments'));
+const AdminEmailSend = React.lazy(() => import('../pages/admin/EmailSend'));
+const ResetPassword = React.lazy(() => import('../pages/ResetPassword'));
+const ResetPasswordForm = React.lazy(() => import('../pages/ResetPasswordForm'));
+const NotFound = React.lazy(() => import('../pages/NotFound'));
 
 // Componente Suspense para lazy loading
 const SuspenseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -31,148 +32,130 @@ const SuspenseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
 const AppRoutes: React.FC = () => {
   return (
-    <BrowserRouter>
+    <Router>
       <AuthProvider>
-        <RouterRoutes>
-          {/* ===== ROTAS PÚBLICAS ===== */}
+        <Routes>
+          {/* Public Routes */}
+              {/* <ReactRoute 
+                path="/reset-password" 
+                element={
+                  <Route requireAuth={false}>
+                    <SuspenseWrapper>
+                      <ResetPassword />
+                    </SuspenseWrapper>
+                  </Route>
+                } 
+              />
+              <ReactRoute 
+                path="/reset-password-form" 
+                element={
+                  <Route requireAuth={false}>
+                    <SuspenseWrapper>
+                      <ResetPasswordForm />
+                    </SuspenseWrapper>
+                  </Route>
+                } 
+              /> */}
           
-          {/* Redirecionamento da home */}
-          <Route 
-            path="/" 
-            element={<Navigate to="/admin/login" replace />} 
-          />
-          
-          {/* Reset de senha */}
-          <Route 
-            path="/reset-password" 
-            element={
-              <SuspenseWrapper>
-                <ResetPassword />
-              </SuspenseWrapper>
-            } 
-          />
-          
-          <Route 
-            path="/reset-password/:token" 
-            element={
-              <SuspenseWrapper>
-                <ResetPasswordForm />
-              </SuspenseWrapper>
-            } 
-          />
-
-          {/* ===== ROTAS DE AUTENTICAÇÃO ===== */}
-          
-          {/* Redirecionamento do admin */}
-          <Route 
-            path="/admin" 
-            element={<Navigate to="/admin/dashboard" replace />} 
-          />
-          
-          {/* Login */}
-          <Route 
-            path="/admin/login" 
-            element={
-              <SuspenseWrapper>
-                <Login />
-              </SuspenseWrapper>
-            } 
-          />
-
-          {/* ===== ROTAS ADMINISTRATIVAS (PROTEGIDAS) ===== */}
-          
-          {/* Dashboard principal */}
-          <Route 
+          {/* Admin Routes */}
+              <ReactRoute 
+                path="/admin/login" 
+                element={
+                  <Route requireAuth={false}>
+                    <SuspenseWrapper>
+                      <AdminLogin />
+                    </SuspenseWrapper>
+                  </Route>
+                } 
+              />
+          <ReactRoute 
             path="/admin/dashboard" 
             element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminLayout>
-                  <SuspenseWrapper>
-                    <Dashboard />
-                  </SuspenseWrapper>
-                </AdminLayout>
-              </ProtectedRoute>
+              <Route requireAuth={true}>
+                <SuspenseWrapper>
+                  <AdminDashboard />
+                </SuspenseWrapper>
+              </Route>
             } 
           />
-          
-          {/* Gerenciamento de usuários */}
-          <Route 
+          <ReactRoute 
             path="/admin/users" 
             element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminLayout>
-                  <SuspenseWrapper>
-                    <Users />
-                  </SuspenseWrapper>
-                </AdminLayout>
-              </ProtectedRoute>
+              <Route requireAuth={true}>
+                <SuspenseWrapper>
+                  <AdminUsers />
+                </SuspenseWrapper>
+              </Route>
             } 
           />
-          
-          {/* Gerenciamento de web services */}
-          <Route 
-            path="/admin/webservices" 
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminLayout>
-                  <SuspenseWrapper>
-                    <WebServices />
-                  </SuspenseWrapper>
-                </AdminLayout>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Gerenciamento de templates */}
-          <Route 
-            path="/admin/templates" 
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminLayout>
-                  <SuspenseWrapper>
-                    <Templates />
-                  </SuspenseWrapper>
-                </AdminLayout>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Auditoria do sistema */}
-          <Route 
+          <ReactRoute 
             path="/admin/auditing" 
             element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminLayout>
-                  <SuspenseWrapper>
-                    <Auditing />
-                  </SuspenseWrapper>
-                </AdminLayout>
-              </ProtectedRoute>
+              <Route requireAuth={true}>
+                <SuspenseWrapper>
+                  <AdminAuditing />
+                </SuspenseWrapper>
+              </Route>
             } 
           />
-
-          {/* ===== ROTA 404 ===== */}
-          <Route 
-            path="*" 
-            element={<Navigate to="/admin/login" replace />} 
+          <ReactRoute 
+            path="/admin/templates" 
+            element={
+              <Route requireAuth={true}>
+                <SuspenseWrapper>
+                  <AdminTemplates />
+                </SuspenseWrapper>
+              </Route>
+            } 
           />
-        </RouterRoutes>
-        
-        {/* Toast Container */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+          <ReactRoute 
+            path="/admin/webservices" 
+            element={
+              <Route requireAuth={true}>
+                <SuspenseWrapper>
+                  <AdminWebServices />
+                </SuspenseWrapper>
+              </Route>
+            } 
+          />
+          {/* Rotas de Email */}
+          <ReactRoute 
+            path="/admin/email/environments" 
+            element={
+              <Route requireAuth={true}>
+                <SuspenseWrapper>
+                  <AdminEmailEnvironments />
+                </SuspenseWrapper>
+              </Route>
+            } 
+          />
+          <ReactRoute 
+            path="/admin/email/send" 
+            element={
+              <Route requireAuth={true}>
+                <SuspenseWrapper>
+                  <AdminEmailSend />
+                </SuspenseWrapper>
+              </Route>
+            } 
+          />
+          
+          {/* 404 Page */}
+          <ReactRoute 
+            path="*" 
+            element={
+              <SuspenseWrapper>
+                <NotFound />
+              </SuspenseWrapper>
+            } 
+          />
+          
+          {/* Default redirects */}
+          <ReactRoute path="/" element={<Navigate to="/admin/login" replace />} />
+          <ReactRoute path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+        </Routes>
       </AuthProvider>
-    </BrowserRouter>
+    </Router>
   );
 };
 

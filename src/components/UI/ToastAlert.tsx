@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { toast, ToastOptions } from 'react-toastify';
-import { CheckCircle, XCircle, AlertCircle, Info } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -12,69 +11,24 @@ interface ToastAlertProps {
   position?: ToastOptions['position'];
 }
 
-// Componente para renderizar o conteúdo do toast
-const ToastContent: React.FC<{ type: ToastType; title?: string; message: string }> = ({ 
-  type, 
-  title, 
-  message 
-}) => {
-  const config = {
-    success: {
-      icon: CheckCircle,
-      iconColor: 'text-green-500',
-      titleColor: 'text-green-800',
-      messageColor: 'text-green-700'
-    },
-    error: {
-      icon: XCircle,
-      iconColor: 'text-red-500',
-      titleColor: 'text-red-800',
-      messageColor: 'text-red-700'
-    },
-    warning: {
-      icon: AlertCircle,
-      iconColor: 'text-yellow-500',
-      titleColor: 'text-yellow-800',
-      messageColor: 'text-yellow-700'
-    },
-    info: {
-      icon: Info,
-      iconColor: 'text-blue-500',
-      titleColor: 'text-blue-800',
-      messageColor: 'text-blue-700'
-    }
-  };
-
-  const { icon: Icon, iconColor, titleColor, messageColor } = config[type];
-
-  return (
-    <div className="flex items-start">
-      <Icon className={`w-5 h-5 ${iconColor} mt-0.5 mr-3 flex-shrink-0`} />
-      <div className="flex-1">
-        {title && (
-          <h4 className={`text-sm font-medium ${titleColor} mb-1`}>
-            {title}
-          </h4>
-        )}
-        <p className={`text-sm ${messageColor}`}>
-          {message}
-        </p>
-      </div>
-    </div>
-  );
-};
 
 // Hook para usar o ToastAlert
 export const useToastAlert = () => {
-  const showToast = (
+  const showToast = useCallback((
     type: ToastType,
     message: string,
     options?: {
       title?: string;
       duration?: number;
       position?: ToastOptions['position'];
+      clearPrevious?: boolean; // Nova opção para limpar toasts anteriores
     }
   ) => {
+    // Limpar toasts anteriores se solicitado
+    if (options?.clearPrevious !== false) {
+      toast.dismiss();
+    }
+
     const toastOptions: ToastOptions = {
       position: options?.position || 'top-right',
       autoClose: options?.duration || 5000,
@@ -86,37 +40,37 @@ export const useToastAlert = () => {
       theme: 'light',
     };
 
-    const content = (
-      <ToastContent 
-        type={type} 
-        title={options?.title} 
-        message={message} 
-      />
-    );
-
     switch (type) {
       case 'success':
-        return toast.success(content, toastOptions);
+        return toast.success(message, toastOptions);
       case 'error':
-        return toast.error(content, toastOptions);
+        return toast.error(message, toastOptions);
       case 'warning':
-        return toast.warn(content, toastOptions);
+        return toast.warn(message, toastOptions);
       case 'info':
-        return toast.info(content, toastOptions);
+        return toast.info(message, toastOptions);
       default:
-        return toast(content, toastOptions);
+        return toast(message, toastOptions);
     }
-  };
+  }, []);
+
+  const showSuccess = useCallback((message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position']; clearPrevious?: boolean }) =>
+    showToast('success', message, options), [showToast]);
+
+  const showError = useCallback((message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position']; clearPrevious?: boolean }) =>
+    showToast('error', message, options), [showToast]);
+
+  const showWarning = useCallback((message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position']; clearPrevious?: boolean }) =>
+    showToast('warning', message, options), [showToast]);
+
+  const showInfo = useCallback((message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position']; clearPrevious?: boolean }) =>
+    showToast('info', message, options), [showToast]);
 
   return {
-    showSuccess: (message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position'] }) =>
-      showToast('success', message, options),
-    showError: (message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position'] }) =>
-      showToast('error', message, options),
-    showWarning: (message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position'] }) =>
-      showToast('warning', message, options),
-    showInfo: (message: string, options?: { title?: string; duration?: number; position?: ToastOptions['position'] }) =>
-      showToast('info', message, options),
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
     showToast,
   };
 };

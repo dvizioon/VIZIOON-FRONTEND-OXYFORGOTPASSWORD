@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, Mail, ToggleLeft, ToggleRight, Star, Eye, List, ChevronLeft, ChevronRight } from 'lucide-react';
-// import { AdminLayout } from '../../components/Layout/AdminLayout';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, Plus, Edit, Trash2, Mail, ToggleLeft, ToggleRight, Star, Eye, List, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
+import { AdminLayout } from '../../components/Layout/AdminLayout';
 import { Button } from '../../components/UI/Button';
 import { Input } from '../../components/UI/Input';
 import { SearchableSelect } from '../../components/UI/SearchableSelect';
 import { LoadingSpinner } from '../../components/UI/LoadingSpinner';
 import { useToastAlert } from '../../components/UI/ToastAlert';
-import { TemplateModal } from '../../components/modals/TemplateModal';
+import { FloatingPreview } from '../../components/UI/FloatingPreview';
+import TemplateModal from '../../components/modals/TemplateModal';
 import { VariablesModal } from '../../components/modals/VariablesModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
 import { TemplateViewModal } from '../../components/modals/TemplateViewModal';
 import { useTemplates } from '../../hooks';
-import { Template, CreateTemplateData, UpdateTemplateData } from '../../types';
+import { useI18n } from '../../hooks/useI18n';
+import { Template } from '../../types';
 
 interface Variable {
   category: string;
@@ -24,6 +26,7 @@ interface Variable {
 const AdminTemplates: React.FC = () => {
   const { getTemplates, createTemplate, updateTemplate, deleteTemplate, toggleTemplateStatus, getTemplateVariables, setDefaultTemplate } = useTemplates();
   const { showError, showSuccess } = useToastAlert();
+  const { t } = useI18n();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [variables, setVariables] = useState<Variable[]>([]);
   // const [loadingVariables, setLoadingVariables] = useState(false);
@@ -40,6 +43,8 @@ const AdminTemplates: React.FC = () => {
     template: Template | null;
   }>({ isOpen: false, template: null });
   
+  const [createModal, setCreateModal] = useState(false);
+  
   const [variablesModal, setVariablesModal] = useState(false);
   
   const [confirmModal, setConfirmModal] = useState<{
@@ -52,9 +57,13 @@ const AdminTemplates: React.FC = () => {
     template: Template | null;
   }>({ isOpen: false, template: null });
 
+  const [floatingPreview, setFloatingPreview] = useState<{
+    isOpen: boolean;
+    template: Template | null;
+  }>({ isOpen: false, template: null });
+
   useEffect(() => {
     loadTemplates();
-    loadVariables();
   }, []);
 
 
@@ -115,28 +124,69 @@ const AdminTemplates: React.FC = () => {
     }
   };
 
-  const loadVariables = async () => {
+  const loadVariables = useCallback(async () => {
     try {
+      console.log('Carregando variáveis...');
       const response = await getTemplateVariables();
+      console.log('Resposta das variáveis:', response);
       if (response.success && response.variables) {
         const enhancedVars = enhanceVariablesWithDelimiters(response.variables);
+        console.log('Variáveis carregadas:', enhancedVars);
         setVariables(enhancedVars);
       }
     } catch (error) {
+      console.error('Erro ao carregar variáveis:', error);
       // Em caso de erro, usar variáveis padrão
       const defaultVars = getDefaultVariables();
       const enhancedVars = enhanceVariablesWithDelimiters(defaultVars);
       setVariables(enhancedVars);
     }
-  };
+  }, [getTemplateVariables]);
+
+  // Carregar variáveis quando o modal de variáveis abrir
+  useEffect(() => {
+    if (variablesModal) {
+      loadVariables();
+    }
+  }, [variablesModal]); // Removido loadVariables das dependências
 
 
   const handleCreateTemplate = () => {
-    setTemplateModal({ isOpen: true, template: null });
+    setCreateModal(true);
+  };
+
+  const handleCreateSaveTemplate = async (templateData: any) => {
+    try {
+      let response;
+      if (templateModal.template) {
+        // Editando template existente
+        response = await updateTemplate(templateModal.template.id, templateData);
+        if (response.success) {
+          showSuccess('Template atualizado com sucesso!');
+        }
+      } else {
+        // Criando novo template
+        response = await createTemplate(templateData);
+        if (response.success) {
+          showSuccess('Template criado com sucesso!');
+        }
+      }
+      
+      if (response.success) {
+        await loadTemplates();
+        setCreateModal(false);
+        setTemplateModal({ isOpen: false, template: null });
+      } else {
+        showError(response.message || 'Erro ao salvar template');
+      }
+    } catch (error: any) {
+      showError(error.message || 'Erro ao salvar template');
+    }
   };
 
   const handleEditTemplate = (template: Template) => {
-    setTemplateModal({ isOpen: true, template });
+    setCreateModal(true);
+    setTemplateModal({ isOpen: false, template });
   };
 
   const handleDeleteTemplate = (template: Template) => {
@@ -147,27 +197,10 @@ const AdminTemplates: React.FC = () => {
     setViewModal({ isOpen: true, template });
   };
 
-  const handleSaveTemplate = async (data: CreateTemplateData | UpdateTemplateData) => {
-    try {
-      if (templateModal.template) {
-        // Editando template existente
-        const response = await updateTemplate(templateModal.template.id, data as UpdateTemplateData);
-        if (response.success) {
-          showSuccess(response.message || 'Template atualizado com sucesso!');
-          await loadTemplates();
-        }
-      } else {
-        // Criando novo template
-        const response = await createTemplate(data as CreateTemplateData);
-        if (response.success) {
-          showSuccess(response.message || 'Template criado com sucesso!');
-          await loadTemplates();
-        }
-      }
-    } catch (error: any) {
-      throw error; // Deixa o modal tratar o erro
-    }
+  const handleFloatingPreview = (template: Template) => {
+    setFloatingPreview({ isOpen: true, template });
   };
+
 
   const handleConfirmDelete = async () => {
     if (!confirmModal.template) return;
@@ -247,25 +280,33 @@ const AdminTemplates: React.FC = () => {
   }
 
   return (
-    <div>
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Templates de Email</h1>
-            <p className="text-gray-600">Gerencie os templates de email do sistema</p>
-          </div>
-          <div className="flex space-x-3">
-            <Button 
-              variant="outline" 
-              onClick={() => setVariablesModal(true)}
-            >
-              <List className="w-4 h-4 mr-2" />
-              Variáveis
-            </Button>
-            <Button onClick={handleCreateTemplate}>
-              <Plus className="w-4 h-4 mr-2" />
-              Novo Template
-            </Button>
+    <AdminLayout title="Templates de Email">
+      <div className="w-full h-full">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <FileText className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{t('templates')}</h1>
+                <p className="text-gray-600">Gerencie os templates de email do sistema</p>
+              </div>
+            </div>
+            <div className="flex space-x-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setVariablesModal(true)}
+              >
+                <List className="w-4 h-4 mr-2" />
+                Variáveis
+              </Button>
+              <Button onClick={handleCreateTemplate}>
+                <Plus className="w-4 h-4 mr-2" />
+                Novo Template
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -344,11 +385,24 @@ const AdminTemplates: React.FC = () => {
                       <div className="flex items-center">
                         <Mail className="w-5 h-5 text-violet-500 mr-3" />
                         <div>
-                          <div className="flex items-center">
+                          <div className="flex items-center space-x-2">
                             <div className="text-sm font-medium text-gray-900">{template.name}</div>
                             {template.isDefault && (
-                              <Star className="w-4 h-4 text-yellow-500 ml-2" />
+                              <Star className="w-4 h-4 text-yellow-500" />
                             )}
+                          </div>
+                          <div className="flex items-center space-x-2 mt-1">
+                            {/* Badge de Categoria */}
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              template.categoria === 'valid' 
+                                ? 'bg-green-100 text-green-800' 
+                                : template.categoria === 'suspended'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {template.categoria === 'valid' ? 'Válido' : 
+                               template.categoria === 'suspended' ? 'Suspenso' : 'Não Confirmado'}
+                            </span>
                           </div>
                           <div className="text-sm text-gray-500">{template.description}</div>
                         </div>
@@ -406,21 +460,29 @@ const AdminTemplates: React.FC = () => {
                         <Button 
                           variant="ghost" 
                           size="sm"
+                          onClick={() => handleFloatingPreview(template)}
+                          title="Preview flutuante"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
                           onClick={() => handleEditTemplate(template)}
                           title="Editar template"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        {!template.isDefault && (
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleDeleteTemplate(template)}
-                            title="Excluir template"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
-                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleDeleteTemplate(template)}
+                          title="Excluir template"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -545,20 +607,23 @@ const AdminTemplates: React.FC = () => {
           )}
         </div>
 
-        {/* Template Modal */}
+        {/* Create/Edit Template Modal */}
         <TemplateModal
-          isOpen={templateModal.isOpen}
-          onClose={() => setTemplateModal({ isOpen: false, template: null })}
-          onSave={handleSaveTemplate}
+          isOpen={createModal}
+          onClose={() => {
+            setCreateModal(false);
+            setTemplateModal({ isOpen: false, template: null });
+          }}
+          onSave={handleCreateSaveTemplate}
           template={templateModal.template}
         />
+
 
         {/* Variables Modal */}
         <VariablesModal
           isOpen={variablesModal}
           onClose={() => setVariablesModal(false)}
           variables={variables}
-          onInsertVariable={() => {}} // Não precisa inserir aqui, só visualizar
         />
 
         {/* View Modal */}
@@ -578,8 +643,16 @@ const AdminTemplates: React.FC = () => {
           confirmText="Excluir"
           type="danger"
         />
+
+        {/* Floating Preview */}
+        <FloatingPreview
+          isOpen={floatingPreview.isOpen}
+          onClose={() => setFloatingPreview({ isOpen: false, template: null })}
+          content={floatingPreview.template?.content || ''}
+          title={floatingPreview.template?.name || 'Preview'}
+        />
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

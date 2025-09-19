@@ -1,121 +1,108 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { api } from '../../lib/api';
-import { User } from '../../types';
+import api from '../../lib/api';
+import { User, LoginCredentials, AuthResponse } from '../../types';
 
-interface LoginData {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
-
-const useAuth = () => {
-  const navigate = useNavigate();
+export const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null);
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
+  // Verificar autenticação ao carregar
   useEffect(() => {
-    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
-    if (token) {
-      api.defaults.headers.Authorization = `Bearer ${token}`;
-      setIsAuth(true);
-      getCurrentUserInfo();
-    } else {
-      setLoading(false);
-    }
+    checkAuth();
   }, []);
 
-  // Interceptor para adicionar token automaticamente
-  useEffect(() => {
-    const requestInterceptor = api.interceptors.request.use(
-      (config: any) => {
-        const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error: any) => Promise.reject(error)
-    );
-
-    // Interceptor para tratar respostas
-    const responseInterceptor = api.interceptors.response.use(
-      (response: any) => response,
-      (error: any) => {
-        if (error.response?.status === 401) {
-          // Token expirado ou inválido
-          handleLogout();
-          toast.error('Sessão expirada. Faça login novamente.');
-          navigate('/admin/login');
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    return () => {
-      api.interceptors.request.eject(requestInterceptor);
-      api.interceptors.response.eject(responseInterceptor);
-    };
-  }, [navigate]);
-
-  const handleLogin = async (loginData: LoginData) => {
+  const checkAuth = async () => {
     try {
-      setLoading(true);
-      const response = await api.post('/api/auth/login', loginData);
-      const { token, user: userData } = response.data;
-
-      if (loginData.rememberMe) {
-        localStorage.setItem('authToken', token);
-      } else {
-        sessionStorage.setItem('authToken', token);
-      }
-
-      api.defaults.headers.Authorization = `Bearer ${token}`;
-      setUser(userData);
-      setIsAuth(true);
+      const rememberMe = localStorage.getItem('rememberMe') === 'true';
+      const token = rememberMe 
+        ? localStorage.getItem('authToken') 
+        : sessionStorage.getItem('authToken');
       
-      toast.success(`Bem-vindo, ${userData.name}!`);
-      navigate('/admin');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erro ao fazer login');
-      throw error;
+      if (token) {
+        // Verificar se o token ainda é válido
+        const response = await api.get('/v1/user/profile');
+        if (response.data.success) {
+          setUser(response.data.data);
+          setIsAuth(true);
+        } else {
+          // Token inválido, limpar storage
+          clearAuth();
+        }
+      }
+    } catch (error) {
+      // Token inválido ou erro na API
+      clearAuth();
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogin = async (credentials: LoginCredentials) => {
+    try {
+      const response = await api.post<AuthResponse>('/v1/auth/login', {
+        email: credentials.email,
+        password: credentials.password
+      });
+
+      if (response.data.success && response.data.token) {
+        const { token, user: userData } = response.data;
+        
+        // Salvar token baseado na preferência rememberMe
+        if (credentials.rememberMe) {
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('rememberMe', 'true');
+        } else {
+          sessionStorage.setItem('authToken', token);
+          localStorage.removeItem('rememberMe');
+        }
+        
+        setUser(userData || null);
+        setIsAuth(true);
+        
+        return { success: true };
+      } else {
+        throw new Error(response.data.message || 'Erro no login');
+      }
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Erro no login';
+      throw new Error(errorMessage);
+    }
+  };
+
   const handleLogout = () => {
-    sessionStorage.removeItem('authToken');
+    clearAuth();
+    navigate('/admin/login');
+  };
+
+  const clearAuth = () => {
     localStorage.removeItem('authToken');
-    delete api.defaults.headers.Authorization;
+    sessionStorage.removeItem('authToken');
+    localStorage.removeItem('rememberMe');
     setUser(null);
     setIsAuth(false);
-    navigate('/admin/login');
   };
 
   const getCurrentUserInfo = async () => {
     try {
-      const response = await api.get('/api/user/profile');
-      setUser(response.data.user);
-      setLoading(false);
-      return response.data.user;
+      const response = await api.get('/v1/user/profile');
+      if (response.data.success) {
+        setUser(response.data.data);
+        return response.data.data;
+      }
     } catch (error) {
       console.error('Erro ao obter informações do usuário:', error);
-      setLoading(false);
-      handleLogout();
     }
   };
 
   return {
+    user,
     isAuth,
     loading,
-    user,
     handleLogin,
     handleLogout,
-    getCurrentUserInfo,
+    getCurrentUserInfo
   };
 };
-
-export default useAuth;

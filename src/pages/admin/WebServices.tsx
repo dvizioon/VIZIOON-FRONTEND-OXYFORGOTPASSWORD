@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, Globe, ToggleLeft, ToggleRight, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
-// import { AdminLayout } from '../../components/Layout/AdminLayout';
+import { AdminLayout } from '../../components/Layout/AdminLayout';
 import { Button } from '../../components/UI/Button';
 import { Input } from '../../components/UI/Input';
 import { SearchableSelect } from '../../components/UI/SearchableSelect';
@@ -10,12 +10,14 @@ import { WebServiceModal } from '../../components/modals/WebServiceModal';
 import { ConfirmModal } from '../../components/modals/ConfirmModal';
 import { WebServiceViewModal } from '../../components/modals/WebServiceViewModal';
 import { useWebServices } from '../../hooks';
+import { useI18n } from '../../hooks/useI18n';
 import { WebService, CreateWebServiceData, UpdateWebServiceData } from '../../types';
 
 
 const AdminWebServices: React.FC = () => {
   const { getWebServices, createWebService, updateWebService, deleteWebService, toggleWebServiceStatus } = useWebServices();
   const { showError, showSuccess } = useToastAlert();
+  const { t } = useI18n();
   const [webServices, setWebServices] = useState<WebService[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -151,18 +153,26 @@ const AdminWebServices: React.FC = () => {
   }
 
   return (
-    <div>
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">WebServices</h1>
-            <p className="text-gray-600">Gerencie os WebServices do Moodle</p>
-          </div>
-          <div className="flex space-x-3">
-            <Button onClick={handleCreateWebService}>
-              <Plus className="w-4 h-4 mr-2" />
-              Novo WebService
-            </Button>
+    <AdminLayout title="WebServices">
+      <div className="w-full h-full">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                <Globe className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{t('webServices')}</h1>
+                <p className="text-gray-600">Gerencie os WebServices do Moodle</p>
+              </div>
+            </div>
+            <div className="flex space-x-3">
+              <Button onClick={handleCreateWebService}>
+                <Plus className="w-4 h-4 mr-2" />
+                Novo WebService
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -445,7 +455,7 @@ const AdminWebServices: React.FC = () => {
           type="danger"
         />
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

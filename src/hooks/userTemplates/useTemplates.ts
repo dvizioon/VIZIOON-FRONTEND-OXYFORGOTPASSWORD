@@ -17,7 +17,7 @@ export const useTemplates = () => {
         params.append('search', search);
       }
 
-      const response = await api.get(`/api/templates-email?${params}`);
+      const response = await api.get(`/v1/templates-email?${params}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -29,7 +29,7 @@ export const useTemplates = () => {
   const getTemplateById = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/templates-email/${id}`);
+      const response = await api.get(`/v1/templates-email/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -41,7 +41,7 @@ export const useTemplates = () => {
   const createTemplate = async (templateData: CreateTemplateData) => {
     try {
       setLoading(true);
-      const response = await api.post('/api/templates-email', templateData);
+      const response = await api.post('/v1/templates-email', templateData);
       return response.data;
     } catch (error) {
       throw error;
@@ -53,7 +53,7 @@ export const useTemplates = () => {
   const updateTemplate = async (id: string, templateData: UpdateTemplateData) => {
     try {
       setLoading(true);
-      const response = await api.put(`/api/templates-email/${id}`, templateData);
+      const response = await api.put(`/v1/templates-email/${id}`, templateData);
       return response.data;
     } catch (error) {
       throw error;
@@ -65,7 +65,7 @@ export const useTemplates = () => {
   const deleteTemplate = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.delete(`/api/templates-email/${id}`);
+      const response = await api.delete(`/v1/templates-email/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -77,7 +77,7 @@ export const useTemplates = () => {
   const toggleTemplateStatus = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.patch(`/api/templates-email/${id}/toggle`);
+      const response = await api.patch(`/v1/templates-email/${id}/toggle`);
       return response.data;
     } catch (error) {
       throw error;
@@ -89,7 +89,7 @@ export const useTemplates = () => {
   const exportTemplates = async (format: 'csv' | 'xlsx' = 'csv') => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/templates-email/export?format=${format}`, {
+      const response = await api.get(`/v1/templates-email/export?format=${format}`, {
         responseType: 'blob',
       });
       return response.data;
@@ -103,7 +103,7 @@ export const useTemplates = () => {
   const getTemplateVariables = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/templates-email/variables');
+      const response = await api.get('/v1/templates-email/variables');
       return response.data;
     } catch (error) {
       throw error;
@@ -115,7 +115,7 @@ export const useTemplates = () => {
   const setDefaultTemplate = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.patch(`/api/templates-email/${id}/set-default`);
+      const response = await api.patch(`/v1/templates-email/${id}/set-default`);
       return response.data;
     } catch (error) {
       throw error;

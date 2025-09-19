@@ -3,33 +3,15 @@ export interface User {
   name: string;
   email: string;
   role: string;
+  status: 'active' | 'inactive';
   createdAt: string;
   updatedAt: string;
 }
 
-export interface WebService {
-  id: string;
-  protocol: string;
-  url: string;
-  token: string;
-  moodleUser: string;
-  serviceName: string;
-  route: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  message?: string;
-  data?: T;
-  user?: User;
-  token?: string;
-  webServices?: WebService[];
-  urls?: { url: string }[];
-  auditing?: AuditLog[];
-  total?: number;
+export interface LoginCredentials {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
 }
 
 export interface ResetPasswordRequest {
@@ -38,13 +20,122 @@ export interface ResetPasswordRequest {
   username?: string;
 }
 
-export interface ValidateTokenRequest {
-  token: string;
-}
-
-export interface ChangePasswordRequest {
+export interface ResetPasswordForm {
   token: string;
   newPassword: string;
+  confirmPassword: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+  user?: User;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: string;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface DashboardStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalResets: number;
+  pendingResets: number;
+}
+
+export interface MoodleUser {
+  id: number;
+  username: string;
+  email: string;
+  firstname: string;
+  lastname: string;
+  fullname: string;
+}
+
+export interface MoodleUrl {
+  id: number;
+  name: string;
+  url: string;
+  token: string;
+  status: 'active' | 'inactive';
+}
+
+export interface EmailTemplate {
+  id: number;
+  name: string;
+  subject: string;
+  content: string;
+  type: 'reset' | 'confirmation' | 'notification';
+  status: 'active' | 'inactive';
+}
+
+export interface WebService {
+  id: number;
+  name: string;
+  url: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  headers: Record<string, string>;
+  status: 'active' | 'inactive';
+}
+
+export interface AuditLog {
+  id: number;
+  userId: number;
+  action: string;
+  description: string;
+  ipAddress: string;
+  userAgent: string;
+  createdAt: string;
+}
+
+// Template interface updated to match VIZIOON project
+export interface Template {
+  id: string;
+  name: string;
+  description?: string;
+  subject: string;
+  content: string;
+  type: 'html' | 'text';
+  categoria?: 'valid' | 'suspended' | 'unconfirmed';
+  isActive: boolean;
+  isDefault?: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTemplateData {
+  name: string;
+  description?: string;
+  subject: string;
+  content: string;
+  type: 'html' | 'text';
+  categoria?: 'valid' | 'suspended' | 'unconfirmed';
+  isActive?: boolean;
+  isDefault?: boolean;
+}
+
+export interface UpdateTemplateData {
+  name?: string;
+  description?: string;
+  subject?: string;
+  content?: string;
+  type?: 'html' | 'text';
+  categoria?: 'valid' | 'suspended' | 'unconfirmed';
+  isActive?: boolean;
+  isDefault?: boolean;
 }
 
 export interface CreateUserData {
@@ -59,73 +150,29 @@ export interface UpdateUserData {
   email?: string;
   password?: string;
   role?: string;
+  status?: 'active' | 'inactive';
 }
 
 export interface CreateWebServiceData {
-  protocol: string;
+  serviceName: string;
   url: string;
   token: string;
-  serviceName: string;
-  moodleUser?: string;
-  route?: string;
-  isActive?: boolean;
+  description?: string;
 }
 
 export interface UpdateWebServiceData {
-  protocol?: string;
+  serviceName?: string;
   url?: string;
   token?: string;
-  moodleUser?: string;
-  serviceName?: string;
-  route?: string;
-  moodlePassword?: string;
-  isActive?: boolean;
-}
-
-export interface Template {
-  id: string;
-  name: string;
   description?: string;
-  subject: string;
-  content: string;
-  type: 'html' | 'text';
-  isActive: boolean;
-  isDefault?: boolean;
-  created_at: string;
-  updated_at: string;
+  status?: 'active' | 'inactive';
 }
 
-export interface CreateTemplateData {
-  name: string;
-  description?: string;
-  subject: string;
-  content: string;
-  type: 'html' | 'text';
-  isActive?: boolean;
-  isDefault?: boolean;
+export interface ValidateTokenRequest {
+  token: string;
 }
 
-export interface UpdateTemplateData {
-  name?: string;
-  description?: string;
-  subject?: string;
-  content?: string;
-  type?: 'html' | 'text';
-  isActive?: boolean;
-  isDefault?: boolean;
-}
-
-export interface AuditLog {
-  id: string;
-  userId: number;
-  username: string;
-  email: string;
-  webServiceId: string;
-  tokenUser: string;
-  useToken: boolean;
-  emailSent: boolean;
-  tokenExpiresAt: string;
-  description: string;
-  status: 'success' | 'error' | 'pending';
-  created_at: string;
+export interface ChangePasswordRequest {
+  token: string;
+  newPassword: string;
 }

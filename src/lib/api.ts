@@ -1,74 +1,56 @@
-// Base API configuration using Axios
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const ROOT_BASE_URL = import.meta.env.VITE_ROOT_URL || 'http://localhost:3000';
 
-// Instância base do axios para ser usada pelo useAuth
+// Criar instância do axios para API
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-export class BaseApi {
-  protected client: AxiosInstance;
+// Criar instância do axios para rota raiz (sem /api)
+const rootApi = axios.create({
+  baseURL: ROOT_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  constructor() {
-    this.client = axios.create({
-      baseURL: API_BASE_URL,
-      timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // Interceptor para adicionar token automaticamente
-    this.client.interceptors.request.use((config) => {
-      const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
-
-    // Interceptor para tratar respostas
-    this.client.interceptors.response.use(
-      (response: AxiosResponse) => response,
-      (error) => {
-        if (error.code === 'ECONNABORTED') {
-          throw new Error('Timeout: A requisição demorou muito para responder');
-        }
-        if (error.response?.status === 401) {
-          // Token expirado ou inválido
-          sessionStorage.removeItem('authToken');
-          localStorage.removeItem('authToken');
-          throw new Error('Sessão expirada. Faça login novamente.');
-        }
-        if (error.response?.data?.message) {
-          throw new Error(error.response.data.message);
-        }
-        if (error.message === 'Network Error') {
-          throw new Error('Erro de conexão com o servidor. Verifique sua conexão com a internet e tente novamente.');
-        }
-        throw new Error(error.message || 'Erro na requisição');
-      }
-    );
-  }
-
-  protected async request<T>(endpoint: string, options: AxiosRequestConfig = {}): Promise<T> {
-    try {
-      const response = await this.client.request<T>({
-        url: endpoint,
-        ...options,
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
+// Interceptor para adicionar token de autenticação (apenas para api, não para rootApi)
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-}
+);
 
-export { API_BASE_URL, api };
+// Interceptor para tratar respostas (apenas para api, não para rootApi)
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expirado ou inválido
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authToken');
+      localStorage.removeItem('rememberMe');
+      window.location.href = '/admin/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export { api, rootApi };
 export default api;
