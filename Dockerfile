@@ -37,7 +37,7 @@ RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit
 COPY --from=builder /frontend/dist ./dist
 
 # Expor porta
-EXPOSE 3000
+EXPOSE 4567
 
 # Comando para executar nosso servidor Express
 CMD ["node", "dist/server.js"]

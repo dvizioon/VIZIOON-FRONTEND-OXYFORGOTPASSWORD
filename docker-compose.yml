@@ -3,7 +3,7 @@ services:
     build: .
     container_name: oxyrecover-frontend
     ports:
-      - "4567:${PORT:-3000}"
+      - "6789:${PORT:-3000}"
     environment:
       - NODE_ENV=production
       - PORT=${PORT:-3000}
