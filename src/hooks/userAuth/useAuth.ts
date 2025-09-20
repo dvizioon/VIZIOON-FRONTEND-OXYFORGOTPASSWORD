@@ -23,7 +23,7 @@ export const useAuth = () => {
       
       if (token) {
         // Verificar se o token ainda é válido
-        const response = await api.get('/v1/user/profile');
+        const response = await api.get('/api/v1/user/profile');
         if (response.data.success) {
           setUser(response.data.data);
           setIsAuth(true);
@@ -42,7 +42,7 @@ export const useAuth = () => {
 
   const handleLogin = async (credentials: LoginCredentials) => {
     try {
-      const response = await api.post<AuthResponse>('/v1/auth/login', {
+      const response = await api.post<AuthResponse>('/api/v1/auth/login', {
         email: credentials.email,
         password: credentials.password
       });
@@ -87,7 +87,7 @@ export const useAuth = () => {
 
   const getCurrentUserInfo = async () => {
     try {
-      const response = await api.get('/v1/user/profile');
+      const response = await api.get('/api/v1/user/profile');
       if (response.data.success) {
         setUser(response.data.data);
         return response.data.data;

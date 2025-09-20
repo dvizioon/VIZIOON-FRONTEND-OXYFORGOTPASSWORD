@@ -17,7 +17,7 @@ export const useWebServices = () => {
         params.append('search', search);
       }
 
-      const response = await api.get(`/v1/webservice?${params}`);
+      const response = await api.get(`/api/v1/webservice?${params}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -29,7 +29,7 @@ export const useWebServices = () => {
   const getWebServiceById = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`/v1/webservice/${id}`);
+      const response = await api.get(`/api/v1/webservice/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -41,7 +41,7 @@ export const useWebServices = () => {
   const createWebService = async (webServiceData: CreateWebServiceData) => {
     try {
       setLoading(true);
-      const response = await api.post('/v1/webservice', webServiceData);
+      const response = await api.post('/api/v1/webservice', webServiceData);
       return response.data;
     } catch (error) {
       throw error;
@@ -53,7 +53,7 @@ export const useWebServices = () => {
   const updateWebService = async (id: string, webServiceData: UpdateWebServiceData) => {
     try {
       setLoading(true);
-      const response = await api.put(`/v1/webservice/${id}`, webServiceData);
+      const response = await api.put(`/api/v1/webservice/${id}`, webServiceData);
       return response.data;
     } catch (error) {
       throw error;
@@ -65,7 +65,7 @@ export const useWebServices = () => {
   const deleteWebService = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.delete(`/v1/webservice/${id}`);
+      const response = await api.delete(`/api/v1/webservice/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -77,7 +77,7 @@ export const useWebServices = () => {
   const toggleWebServiceStatus = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.patch(`/v1/webservice/${id}/toggle`);
+      const response = await api.patch(`/api/v1/webservice/${id}/toggle`);
       return response.data;
     } catch (error) {
       throw error;
@@ -89,7 +89,7 @@ export const useWebServices = () => {
   const exportWebServices = async (format: 'csv' | 'xlsx' = 'csv') => {
     try {
       setLoading(true);
-      const response = await api.get(`/v1/webservice/export?format=${format}`, {
+      const response = await api.get(`/api/v1/webservice/export?format=${format}`, {
         responseType: 'blob',
       });
       return response.data;

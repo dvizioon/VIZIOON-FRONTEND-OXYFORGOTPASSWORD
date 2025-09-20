@@ -36,7 +36,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const { t } = useI18n();
   const { getSystemInfo } = useSystem();
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
-  const [systemInfo, setSystemInfo] = useState({ ms: 'OxyForgotPassword', version: '1.0.0' });
+  const [systemInfo, setSystemInfo] = useState({ ms: 'oxyRecover', version: '0.0.1' });
 
   useEffect(() => {
     const fetchSystemInfo = async () => {
@@ -112,7 +112,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       <div className="flex flex-col h-full">
         {/* Header do sidebar */}
         <div className="flex items-center justify-between h-16 px-4 bg-gradient-to-r from-violet-600 to-purple-600">
-          {!collapsed && <h1 className="text-lg font-bold text-white">OxyForgotPassword</h1>}
+          {!collapsed && <h1 className="text-lg font-bold text-white">{systemInfo.ms}</h1>}
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
@@ -250,7 +250,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
               >
                 <Menu className="w-5 h-5" />
               </button>
-              <h1 className="text-lg font-bold text-white">OxyForgotPassword</h1>
+              <h1 className="text-lg font-bold text-white">{systemInfo.ms}</h1>
             </div>
             <button
               onClick={onClose}

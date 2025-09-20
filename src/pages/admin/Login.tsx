@@ -70,7 +70,7 @@ const AdminLogin: React.FC = () => {
             <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-sm">
               <Database className="w-12 h-12 text-white" />
             </div>
-            <h2 className="text-4xl font-bold mb-4">{t('welcome')} ao OxyForgotPassword</h2>
+            <h2 className="text-4xl font-bold mb-4">{t('welcome')} ao oxyRecover</h2>
             <p className="text-xl text-white/90 mb-8">
               {t('platformDescription')}
             </p>
@@ -91,13 +91,13 @@ const AdminLogin: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Mobile Header */}
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">OxyForgotPassword</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">oxyRecover</h1>
             <p className="text-gray-600">{t('platformDescription')}</p>
           </div>
 
           {/* Desktop Header */}
           <div className="hidden lg:block mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('enter')} no OxyForgotPassword</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('enter')} no oxyRecover</h1>
             <p className="text-gray-600">{t('createAndManage')}</p>
           </div>
 
@@ -152,7 +152,7 @@ const AdminLogin: React.FC = () => {
               className="w-full"
               size="lg"
             >
-              <span>{t('access')} OxyForgotPassword</span>
+              <span>{t('access')} oxyRecover</span>
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </form>

@@ -35,7 +35,7 @@ export const useAuditing = () => {
         params.append('endDate', endDate);
       }
 
-      const response = await api.get(`/v1/auditing?${params}`);
+      const response = await api.get(`/api/v1/auditing?${params}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -47,7 +47,7 @@ export const useAuditing = () => {
   const getAuditLogById = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.get(`/v1/auditing/${id}`);
+      const response = await api.get(`/api/v1/auditing/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -69,7 +69,7 @@ export const useAuditing = () => {
         params.append('endDate', endDate);
       }
 
-      const response = await api.get(`/v1/auditing/stats?${params}`);
+      const response = await api.get(`/api/v1/auditing/stats?${params}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -102,7 +102,7 @@ export const useAuditing = () => {
         params.append('status', status);
       }
 
-      const response = await api.get(`/v1/auditing/export?${params}`, {
+      const response = await api.get(`/api/v1/auditing/export?${params}`, {
         responseType: 'blob',
       });
       return response.data;
@@ -116,7 +116,7 @@ export const useAuditing = () => {
   const deleteAuditLog = async (id: string) => {
     try {
       setLoading(true);
-      const response = await api.delete(`/v1/auditing/${id}`);
+      const response = await api.delete(`/api/v1/auditing/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -134,7 +134,7 @@ export const useAuditing = () => {
         params.append('olderThan', olderThan);
       }
 
-      const response = await api.delete(`/v1/auditing/clear?${params}`);
+      const response = await api.delete(`/api/v1/auditing/clear?${params}`);
       return response.data;
     } catch (error) {
       throw error;

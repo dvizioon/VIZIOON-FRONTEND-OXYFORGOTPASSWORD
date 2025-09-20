@@ -9,7 +9,7 @@ export const useMoodle = () => {
   const requestPasswordReset = useCallback(async (data: ResetPasswordRequest) => {
     try {
       setLoading(true);
-      const response = await api.post('/v1/moodle/reset-password', data);
+      const response = await api.post('/api/v1/moodle/reset-password', data);
       return response.data;
     } catch (error) {
       throw error;
@@ -21,7 +21,7 @@ export const useMoodle = () => {
   const validateResetToken = useCallback(async (data: ValidateTokenRequest) => {
     try {
       setLoading(true);
-      const response = await api.post('/v1/moodle//validate-reset-token', data);
+      const response = await api.post('/api/v1/moodle/validate-reset-token', data);
       return response.data;
     } catch (error) {
       throw error;
@@ -33,7 +33,7 @@ export const useMoodle = () => {
   const changePassword = useCallback(async (data: ChangePasswordRequest) => {
     try {
       setLoading(true);
-      const response = await api.post('/v1/moodle/change-password', data);
+      const response = await api.post('/api/v1/moodle/change-password', data);
       return response.data;
     } catch (error) {
       throw error;
@@ -45,7 +45,7 @@ export const useMoodle = () => {
   const testMoodleConnection = useCallback(async (moodleUrl: string) => {
     try {
       setLoading(true);
-      const response = await api.post('/v1/moodle/test-connection', { moodleUrl });
+      const response = await api.post('/api/v1/moodle/test-connection', { moodleUrl });
       return response.data;
     } catch (error) {
       throw error;
@@ -63,7 +63,7 @@ export const useMoodle = () => {
         params.append('search', search);
       }
 
-      const response = await api.get(`/v1/moodle/users?${params}`);
+      const response = await api.get(`/api/v1/moodle/users?${params}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -75,7 +75,7 @@ export const useMoodle = () => {
   const findMoodleUser = useCallback(async (data: { moodleUrl: string; email?: string; username?: string }) => {
     try {
       setLoading(true);
-      const response = await api.post('/v1/moodle/find-user', data);
+      const response = await api.post('/api/v1/moodle/find-user', data);
       return response.data;
     } catch (error) {
       throw error;
@@ -87,7 +87,7 @@ export const useMoodle = () => {
   const getMoodleUrls = useCallback(async () => {
     try {
       setLoadingUrls(true);
-      const response = await api.get('/v1/moodle/urls');
+      const response = await api.get('/api/v1/moodle/urls');
       return response.data;
     } catch (error) {
       throw error;

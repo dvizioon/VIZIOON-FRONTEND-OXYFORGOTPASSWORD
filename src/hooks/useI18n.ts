@@ -69,7 +69,7 @@ export const useI18n = (): I18nContextType => {
     
     if (typeof value === 'string') {
       // Substituir {systemName} pelo nome dinâmico do sistema
-      return value.replace('{systemName}', 'OxyForgotPassword');
+      return value.replace('{systemName}', 'oxyRecover');
     }
     
     return key;
