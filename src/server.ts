@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6879;
 
 // Servir arquivos estáticos da pasta dist
 app.use(express.static(path.join(__dirname, '../dist')));
@@ -20,5 +20,5 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   console.log(`Servindo arquivos da pasta: ${path.join(__dirname, '../dist')}`);
-  console.log(`Acesse: http://localhost:${PORT}`);
+  console.log(`Acesse: ${process.env.HOST ? process.env.HOST : 'localhost'}:${PORT}`);
 });
